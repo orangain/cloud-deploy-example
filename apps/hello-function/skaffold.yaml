@@ -21,3 +21,16 @@ profiles:
               - values/prod.yaml
 deploy:
   cloudrun: {}
+verify:
+  - name: smoke-test
+    container:
+      name: curl
+      image: curlimages/curl:8.12.1
+      command:
+        - /bin/sh
+      args:
+        - -ceu
+        - |
+          for url in $(printf '%s' "$CLOUD_RUN_SERVICE_URLS" | tr ',' ' '); do
+            curl --fail --silent --show-error --retry 5 --retry-all-errors "$url" >/dev/null
+          done

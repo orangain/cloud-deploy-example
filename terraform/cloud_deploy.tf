@@ -12,7 +12,7 @@ resource "google_clouddeploy_target" "service" {
   }
 
   execution_configs {
-    usages           = ["RENDER", "DEPLOY"]
+    usages           = ["RENDER", "DEPLOY", "VERIFY"]
     service_account  = google_service_account.deploy_execution.email
     artifact_storage = "gs://${google_storage_bucket.cloud_deploy.name}"
   }
@@ -36,10 +36,22 @@ resource "google_clouddeploy_delivery_pipeline" "service" {
     stages {
       target_id = google_clouddeploy_target.service["${each.value}-stg"].name
       profiles  = ["stg"]
+
+      strategy {
+        standard {
+          verify = true
+        }
+      }
     }
     stages {
       target_id = google_clouddeploy_target.service["${each.value}-prod"].name
       profiles  = ["prod"]
+
+      strategy {
+        standard {
+          verify = true
+        }
+      }
     }
   }
 }

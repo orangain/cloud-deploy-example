@@ -59,6 +59,10 @@ Cloud Run serviceはHelm templateの
 Cloud DeployのstageがSkaffoldの`stg`/`prod` profileを選び、profileに対応する
 Helm valuesから次の環境変数が設定されます。
 
+各stageではデプロイ後にCloud Deployのverify taskを実行します。Cloud Deployから
+渡される`CLOUD_RUN_SERVICE_URLS`へ`curl`し、HTTPエラーになった場合はrolloutも
+失敗します。stagingのverifyが成功するまでproductionへの自動昇格は行われません。
+
 | Environment | `APP_ENV` | `WELCOME_MESSAGE` |
 |---|---|---|
 | staging | `stg` | `Hello from staging` |
