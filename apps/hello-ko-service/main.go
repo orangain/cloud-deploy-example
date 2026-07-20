@@ -16,7 +16,7 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(map[string]string{
-			"message":     envOrDefault("WELCOME_MESSAGE", "Hello from ko"),
+			"message":     envOrDefault("WELCOME_MESSAGE", "Hello from the ko-built Cloud Run service"),
 			"environment": envOrDefault("APP_ENV", "unknown"),
 		}); err != nil {
 			log.Printf("write response: %v", err)
