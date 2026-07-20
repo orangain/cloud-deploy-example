@@ -1,0 +1,7 @@
+serviceName: hello-function
+image: APP_IMAGE
+containerPort: 8080
+maxScale: 10
+env:
+  FUNCTION_TARGET: helloHttp
+

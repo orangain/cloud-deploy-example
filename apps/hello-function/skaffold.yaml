@@ -2,9 +2,22 @@ apiVersion: skaffold/v4beta7
 kind: Config
 metadata:
   name: hello-function
-manifests:
-  rawYaml:
-    - service.yaml
+profiles:
+  - name: stg
+    manifests:
+      helm:
+        releases:
+          - name: hello-function
+            chartPath: chart
+            valuesFiles:
+              - values/stg.yaml
+  - name: prod
+    manifests:
+      helm:
+        releases:
+          - name: hello-function
+            chartPath: chart
+            valuesFiles:
+              - values/prod.yaml
 deploy:
   cloudrun: {}
-

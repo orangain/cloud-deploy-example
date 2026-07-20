@@ -117,7 +117,7 @@ resource "google_storage_bucket_iam_member" "github_source_staging" {
 resource "google_project_iam_member" "execution_runtime_roles" {
   for_each = {
     for pair in setproduct(keys(local.runtime_projects), [
-      "roles/run.developer",
+      "roles/run.admin",
       "roles/iam.serviceAccountUser",
       ]) : "${pair[0]}/${pair[1]}" => {
       project = local.runtime_projects[pair[0]]
@@ -357,11 +357,11 @@ resource "google_clouddeploy_delivery_pipeline" "service" {
   serial_pipeline {
     stages {
       target_id = google_clouddeploy_target.service["${each.value}-stg"].name
-      profiles  = []
+      profiles  = ["stg"]
     }
     stages {
       target_id = google_clouddeploy_target.service["${each.value}-prod"].name
-      profiles  = []
+      profiles  = ["prod"]
     }
   }
 }

@@ -1,0 +1,6 @@
+serviceName: hello-service
+image: APP_IMAGE
+containerPort: 8080
+maxScale: 10
+env: {}
+

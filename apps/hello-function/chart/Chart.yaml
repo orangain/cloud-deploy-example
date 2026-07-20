@@ -1,0 +1,6 @@
+apiVersion: v2
+name: hello-function
+description: Cloud Run function service manifest
+type: application
+version: 0.1.0
+

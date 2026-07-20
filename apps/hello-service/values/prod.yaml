@@ -1,0 +1,4 @@
+env:
+  APP_ENV: prod
+  WELCOME_MESSAGE: Hello from production
+
