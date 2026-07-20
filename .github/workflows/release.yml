@@ -60,14 +60,3 @@ jobs:
         run: |
           release="git-${GITHUB_SHA::12}-${GITHUB_RUN_ATTEMPT}"
           scripts/create-release.sh "${{ matrix.app }}" "$release"
-          mkdir -p release-metadata
-          jq -n \
-            --arg app "${{ matrix.app }}" \
-            --arg release "$release" \
-            '{app: $app, release: $release}' \
-            > "release-metadata/${{ matrix.app }}.json"
-      - uses: actions/upload-artifact@v7
-        with:
-          name: release-${{ matrix.app }}
-          path: release-metadata/*.json
-          retention-days: 30

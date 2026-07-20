@@ -12,7 +12,6 @@ apps/
 scripts/
   changed-apps.sh      git diff からデプロイ対象を抽出
   create-release.sh    staging release を作成
-  promote-release.sh   production へ promote
 terraform/             API、IAM、WIF、Cloud Deploy pipeline/target
 ```
 
@@ -57,11 +56,10 @@ release source はTerraformで作成したCloud Deploy用bucketの`source/<app>`
 
 ## production へ昇格
 
-GitHub Actions の **Promote to production** を Run workflow し、
-staging release の GitHub Actions run ID を入力します。staging workflow が保存した
-release 一覧を読み取り、対象 service を並列で production へ promote します。
-production target は `require_approval = true` なので、続けて Google Cloud console
-または次のコマンドで rollout を承認します。
+staging rolloutが成功すると、Cloud Deploy Automationが同じreleaseをproductionへ
+自動的にpromoteします。production targetは`require_approval = true`なので、
+実際のproductionデプロイは承認されるまで開始されません。stagingの動作確認後、
+Google Cloud consoleまたは次のコマンドでrolloutを承認します。
 
 ```bash
 gcloud deploy rollouts approve ROLLOUT \

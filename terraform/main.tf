@@ -82,6 +82,18 @@ resource "google_project_iam_member" "execution_job_runner" {
   member  = google_service_account.deploy_execution.member
 }
 
+resource "google_project_iam_member" "execution_automation_releaser" {
+  project = var.deploy_project_id
+  role    = "roles/clouddeploy.releaser"
+  member  = google_service_account.deploy_execution.member
+}
+
+resource "google_service_account_iam_member" "automation_uses_execution" {
+  service_account_id = google_service_account.deploy_execution.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = google_service_account.deploy_execution.member
+}
+
 resource "google_storage_bucket_iam_member" "execution_artifacts" {
   bucket = google_storage_bucket.cloud_deploy.name
   role   = "roles/storage.admin"
@@ -211,4 +223,33 @@ resource "google_clouddeploy_delivery_pipeline" "service" {
       profiles  = []
     }
   }
+}
+
+resource "google_clouddeploy_automation" "promote_to_prod" {
+  for_each = var.services
+
+  project           = var.deploy_project_id
+  location          = var.region
+  name              = "promote-to-prod"
+  delivery_pipeline = google_clouddeploy_delivery_pipeline.service[each.value].name
+  service_account   = google_service_account.deploy_execution.email
+  description       = "Promote ${each.value} to production after a successful staging rollout"
+
+  selector {
+    targets {
+      id = google_clouddeploy_target.service["${each.value}-stg"].name
+    }
+  }
+
+  rules {
+    promote_release_rule {
+      id                    = "promote-to-prod"
+      destination_target_id = google_clouddeploy_target.service["${each.value}-prod"].name
+    }
+  }
+
+  depends_on = [
+    google_project_iam_member.execution_automation_releaser,
+    google_service_account_iam_member.automation_uses_execution,
+  ]
 }
