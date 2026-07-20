@@ -62,7 +62,9 @@ apply 後の output を GitHub repository variables に設定します。
 `main` への pull request merge（または直接 push）で
 `.github/workflows/release.yml` が staging release を作ります。
 release source はTerraformで作成したCloud Deploy用bucketの`source/<app>`へ
-アップロードされます。GitHub SAのStorage権限はこのbucketだけに限定しています。
+アップロードされます。Cloud Build sourceも同じbucketの`build-source/<app>`へ
+アップロードし、Google管理のdefault source bucketには依存しません。
+GitHub SAのStorage権限はこのbucketだけに限定しています。
 
 Cloud Run serviceはHelm templateの
 `run.googleapis.com/invoker-iam-disabled: "true"`により未認証でアクセスできます。

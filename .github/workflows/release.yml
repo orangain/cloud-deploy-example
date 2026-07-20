@@ -72,6 +72,7 @@ jobs:
             --project="$GCP_DEPLOY_PROJECT" \
             --region="$GCP_DEPLOY_REGION" \
             --service-account="projects/${GCP_DEPLOY_PROJECT}/serviceAccounts/cloud-build-builder@${GCP_DEPLOY_PROJECT}.iam.gserviceaccount.com" \
+            --gcs-source-staging-dir="gs://${GCP_DEPLOY_PROJECT}-cloud-deploy-${GCP_DEPLOY_REGION}/build-source/${APP}" \
             --substitutions="_IMAGE=$image,_TAG=$GITHUB_SHA"
 
           digest="$(gcloud artifacts docker images describe "$image:$GITHUB_SHA" \

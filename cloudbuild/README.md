@@ -46,7 +46,8 @@ buildに関係する権限は次のとおりです。
 - projectの`roles/serviceusage.serviceUsageConsumer`: API利用
 - Cloud Build builder service accountに対する`roles/iam.serviceAccountUser`:
   build実行時のservice account指定
-- Cloud Build source bucketの`roles/storage.objectAdmin`: source archiveのupload
+- Cloud Deploy bucketの`roles/storage.admin`: build source archiveのuploadと
+  Cloud Deploy release sourceの管理
 - Artifact Registry repositoryの`roles/artifactregistry.reader`: build後のdigest取得
 
 ### Cloud Build builder service account
@@ -55,11 +56,11 @@ buildに関係する権限は次のとおりです。
 実行します。利用できる権限は次の範囲に限定しています。
 
 - Artifact Registry repositoryの`roles/artifactregistry.writer`: imageのpush
-- Cloud Build source bucketの`roles/storage.objectViewer`: source archiveの取得
+- Cloud Deploy bucketの`roles/storage.objectViewer`: build source archiveの取得
 - projectの`roles/logging.logWriter`: build logのCloud Loggingへの書き込み
 
 このservice accountにはCloud DeployやCloud Runを操作する権限、GitHubへアクセス
-する権限、Cloud Build source bucketへ書き込む権限はありません。
+する権限、Cloud Deploy bucketへ書き込む権限はありません。
 
 権限定義は`terraform/iam.tf`、`terraform/storage.tf`、
 `terraform/artifact_registry.tf`にあります。
