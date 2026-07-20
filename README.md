@@ -7,8 +7,9 @@
 
 ```text
 apps/
-  hello-service/       Cloud Run service
-  hello-function/      Functions Framework を使う Cloud Run function
+  hello-service/       DockerfileでビルドするCloud Run service
+  hello-function/      DockerfileでビルドするCloud Run function
+  hello-ko-service/    koでビルドするGo Cloud Run service
 scripts/
   changed-apps.sh      git diff からデプロイ対象を抽出
 terraform/             API、IAM、WIF、Cloud Deploy pipeline/target
@@ -18,6 +19,11 @@ Cloud Deploy の Cloud Run target は 1 target につき 1 service なので、
 service ごとに独立した delivery pipeline を作ります。GitHub Actions の matrix が
 変更された pipeline を同時実行します。これにより、変更のない service はリリース
 されず、失敗や production 昇格も service 単位で扱えます。
+
+コンテナは`cloudbuild/docker.yaml`または`cloudbuild/ko.yaml`を使ってCloud Build
+でビルドし、`orange-sandbox`のArtifact Registryへ保存します。workflowは
+Dockerfileまたはgo.modからビルダーを選び、Artifact Registryで解決したdigestを
+Cloud Deploy releaseへ渡します。Cloud BuildのログはCloud Loggingだけに保存します。
 
 ## 初期セットアップ
 

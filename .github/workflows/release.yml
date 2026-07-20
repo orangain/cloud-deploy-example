@@ -55,6 +55,33 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v3
         with:
           version: ">= 541.0.0"
+      - name: Build container
+        env:
+          APP: ${{ matrix.app }}
+          GCP_DEPLOY_PROJECT: ${{ vars.GCP_DEPLOY_PROJECT }}
+          GCP_DEPLOY_REGION: ${{ vars.GCP_DEPLOY_REGION }}
+        run: |
+          if [[ -f "apps/$APP/Dockerfile" ]]; then
+            config="cloudbuild/docker.yaml"
+          elif [[ -f "apps/$APP/go.mod" ]]; then
+            config="cloudbuild/ko.yaml"
+          else
+            echo "No supported builder found for $APP" >&2
+            exit 1
+          fi
+
+          image="${GCP_DEPLOY_REGION}-docker.pkg.dev/${GCP_DEPLOY_PROJECT}/cloud-deploy-example/${APP}"
+          gcloud builds submit "apps/$APP" \
+            --config="$config" \
+            --project="$GCP_DEPLOY_PROJECT" \
+            --region="$GCP_DEPLOY_REGION" \
+            --service-account="projects/${GCP_DEPLOY_PROJECT}/serviceAccounts/cloud-build-builder@${GCP_DEPLOY_PROJECT}.iam.gserviceaccount.com" \
+            --substitutions="_IMAGE=$image,_TAG=$GITHUB_SHA"
+
+          digest="$(gcloud artifacts docker images describe "$image:$GITHUB_SHA" \
+            --project="$GCP_DEPLOY_PROJECT" \
+            --format='value(image_summary.digest)')"
+          echo "DEPLOY_IMAGE=$image@$digest" >> "$GITHUB_ENV"
       - name: Create release and deploy to staging
         env:
           APP: ${{ matrix.app }}
@@ -68,7 +95,7 @@ jobs:
             --region="$GCP_DEPLOY_REGION" \
             --source="apps/$APP" \
             --gcs-source-staging-dir="gs://${GCP_DEPLOY_PROJECT}-cloud-deploy-${GCP_DEPLOY_REGION}/source/${APP}" \
-            --images="APP_IMAGE=us-docker.pkg.dev/cloudrun/container/hello:latest" \
+            --images="APP_IMAGE=$DEPLOY_IMAGE" \
             --annotations="commitSha=$GITHUB_SHA,app=$APP"
 
   request-production-approval:

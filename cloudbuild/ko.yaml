@@ -1,0 +1,12 @@
+steps:
+  - name: ghcr.io/ko-build/ko:v0.18.0
+    args:
+      - build
+      - --bare
+      - --tags=${_TAG}
+      - .
+    env:
+      - KO_DOCKER_REPO=${_IMAGE}
+
+options:
+  logging: CLOUD_LOGGING_ONLY

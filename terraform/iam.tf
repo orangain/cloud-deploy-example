@@ -19,6 +19,13 @@ resource "google_service_account" "batch_approver" {
   depends_on   = [google_project_service.deploy]
 }
 
+resource "google_service_account" "cloud_build_builder" {
+  project      = var.deploy_project_id
+  account_id   = "cloud-build-builder"
+  display_name = "Application container builder"
+  depends_on   = [google_project_service.deploy]
+}
+
 resource "google_project_iam_member" "execution_job_runner" {
   project = var.deploy_project_id
   role    = "roles/clouddeploy.jobRunner"
@@ -55,13 +62,27 @@ resource "google_project_iam_member" "execution_runtime_roles" {
 
 resource "google_project_iam_member" "github_roles" {
   for_each = toset([
+    "roles/cloudbuild.builds.editor",
     "roles/clouddeploy.releaser",
     "roles/clouddeploy.viewer",
+    "roles/serviceusage.serviceUsageConsumer",
   ])
 
   project = var.deploy_project_id
   role    = each.value
   member  = google_service_account.github_deployer.member
+}
+
+resource "google_service_account_iam_member" "github_uses_cloud_build_builder" {
+  service_account_id = google_service_account.cloud_build_builder.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = google_service_account.github_deployer.member
+}
+
+resource "google_project_iam_member" "cloud_build_builder_logs" {
+  project = var.deploy_project_id
+  role    = "roles/logging.logWriter"
+  member  = google_service_account.cloud_build_builder.member
 }
 
 resource "google_project_iam_member" "production_approver" {

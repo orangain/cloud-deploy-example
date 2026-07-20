@@ -1,0 +1,5 @@
+apiVersion: v2
+name: hello-ko-service
+description: Cloud Run service built with ko
+type: application
+version: 0.1.0

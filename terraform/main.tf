@@ -5,6 +5,7 @@ locals {
   }
 
   deploy_apis = toset([
+    "artifactregistry.googleapis.com",
     "cloudbuild.googleapis.com",
     "clouddeploy.googleapis.com",
     "iam.googleapis.com",

@@ -1,0 +1,36 @@
+apiVersion: skaffold/v4beta7
+kind: Config
+metadata:
+  name: hello-ko-service
+profiles:
+  - name: stg
+    manifests:
+      helm:
+        releases:
+          - name: hello-ko-service
+            chartPath: chart
+            valuesFiles:
+              - values/stg.yaml
+  - name: prod
+    manifests:
+      helm:
+        releases:
+          - name: hello-ko-service
+            chartPath: chart
+            valuesFiles:
+              - values/prod.yaml
+deploy:
+  cloudrun: {}
+verify:
+  - name: smoke-test
+    container:
+      name: curl
+      image: curlimages/curl:8.12.1
+      command:
+        - /bin/sh
+      args:
+        - -ceu
+        - |
+          for url in $(printf '%s' "$CLOUD_RUN_SERVICE_URLS" | tr ',' ' '); do
+            curl --fail --silent --show-error --retry 5 --retry-all-errors "$url" >/dev/null
+          done

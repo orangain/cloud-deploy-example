@@ -18,3 +18,10 @@ output "delivery_pipelines" {
   value = sort(tolist(var.services))
 }
 
+output "artifact_registry_repository" {
+  value = google_artifact_registry_repository.applications.name
+}
+
+output "cloud_build_service_account" {
+  value = google_service_account.cloud_build_builder.email
+}
