@@ -10,6 +10,10 @@ output "deploy_project_id" {
   value = var.deploy_project_id
 }
 
+output "artifact_project_id" {
+  value = var.artifact_project_id
+}
+
 output "region" {
   value = var.region
 }

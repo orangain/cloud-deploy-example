@@ -4,6 +4,11 @@ variable "deploy_project_id" {
   default     = "orange-sandbox"
 }
 
+variable "artifact_project_id" {
+  description = "Artifact Registry project."
+  type        = string
+}
+
 variable "staging_project_id" {
   description = "Staging Cloud Run project."
   type        = string

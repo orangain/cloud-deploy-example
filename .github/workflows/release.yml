@@ -59,6 +59,7 @@ jobs:
         id: build
         env:
           APP: ${{ matrix.app }}
+          GCP_ARTIFACT_PROJECT: ${{ vars.GCP_ARTIFACT_PROJECT }}
           GCP_DEPLOY_PROJECT: ${{ vars.GCP_DEPLOY_PROJECT }}
           GCP_DEPLOY_REGION: ${{ vars.GCP_DEPLOY_REGION }}
         run: |
@@ -66,7 +67,7 @@ jobs:
           # これによりcustom SA、logging、VERIFIED provenance、images出力を
           # Dockerfile/koのどちらでも同じ契約として明示的に制御できる。
           config="$(scripts/select-build-config.sh "apps/$APP")"
-          image="${GCP_DEPLOY_REGION}-docker.pkg.dev/${GCP_DEPLOY_PROJECT}/cloud-deploy-example/${APP}"
+          image="${GCP_DEPLOY_REGION}-docker.pkg.dev/${GCP_ARTIFACT_PROJECT}/cloud-deploy-example/${APP}"
           gcloud builds submit "apps/$APP" \
             --config="$config" \
             --project="$GCP_DEPLOY_PROJECT" \
@@ -76,7 +77,7 @@ jobs:
             --substitutions="_IMAGE=$image,_TAG=$GITHUB_SHA"
 
           digest="$(gcloud artifacts docker images describe "$image:$GITHUB_SHA" \
-            --project="$GCP_DEPLOY_PROJECT" \
+            --project="$GCP_ARTIFACT_PROJECT" \
             --format='value(image_summary.digest)')"
           echo "deploy_image=$image@$digest" >> "$GITHUB_OUTPUT"
       - name: Create release and deploy to staging

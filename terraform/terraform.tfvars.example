@@ -1,3 +1,4 @@
 github_repository = "YOUR_GITHUB_OWNER/cloud-deploy-example"
+artifact_project_id = "orange-sandbox"
 
 # production_approvers = ["group:release-managers@example.com"]

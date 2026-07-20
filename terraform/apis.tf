@@ -18,3 +18,14 @@ resource "google_project_service" "runtime" {
   service            = each.value.api
   disable_on_destroy = false
 }
+
+resource "google_project_service" "artifact" {
+  for_each = var.artifact_project_id == var.deploy_project_id ? toset([]) : toset([
+    "artifactregistry.googleapis.com",
+    "containeranalysis.googleapis.com",
+  ])
+
+  project            = var.artifact_project_id
+  service            = each.value
+  disable_on_destroy = false
+}

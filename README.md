@@ -49,6 +49,12 @@ terraform apply
 必要に応じて `production_approvers` に production rollout を承認する group/user を
 指定してください。指定したメンバーにはCloud Build Approverだけが付与されます。
 GitHub Actionsのサービスアカウントには承認権限を付与しません。
+Artifact RegistryをCloud Deployとは別のprojectに置く場合は`artifact_project_id`を
+指定します。同じprojectに置く場合も`deploy_project_id`と同じ値を明示します。
+別projectを指定する場合、Terraformを実行する主体にはそのprojectでAPI、repository、
+IAMを管理する権限も必要です。
+既存環境でprojectを変更すると新しいrepositoryが作られますが、既存imageはコピー
+されないため、変更後に各appを再buildしてください。
 
 apply 後の output を GitHub repository variables に設定します。
 
@@ -57,6 +63,7 @@ apply 後の output を GitHub repository variables に設定します。
 | `GCP_WORKLOAD_IDENTITY_PROVIDER` | `github_workload_identity_provider` |
 | `GCP_DEPLOY_SERVICE_ACCOUNT` | `github_deployer_service_account` |
 | `GCP_DEPLOY_PROJECT` | `deploy_project_id` |
+| `GCP_ARTIFACT_PROJECT` | `artifact_project_id` |
 | `GCP_DEPLOY_REGION` | `region` |
 
 `main` への pull request merge（または直接 push）で
