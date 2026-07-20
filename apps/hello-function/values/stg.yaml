@@ -1,4 +1,2 @@
 env:
   APP_ENV: stg
-  WELCOME_MESSAGE: Hello from staging
-

@@ -73,10 +73,13 @@ Helm valuesから次の環境変数が設定されます。
 渡される`CLOUD_RUN_SERVICE_URLS`へ`curl`し、HTTPエラーになった場合はrolloutも
 失敗します。stagingのverifyが成功するまでproductionへの自動昇格は行われません。
 
-| Environment | `APP_ENV` | `WELCOME_MESSAGE` |
-|---|---|---|
-| staging | `stg` | `Hello from staging` |
-| production | `prod` | `Hello from production` |
+| Environment | `APP_ENV` |
+|---|---|
+| staging | `stg` |
+| production | `prod` |
+
+レスポンスの`message`は各app固有のデフォルト値を使用し、`environment`で
+stagingとproductionを区別します。
 
 環境変数を増やす場合は、各appの`values/stg.yaml`と`values/prod.yaml`へ追加します。
 TerraformやHelm templateへの変数ごとの追加は不要です。機密値はvaluesへ直接書かず、
