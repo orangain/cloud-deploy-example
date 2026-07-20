@@ -62,6 +62,9 @@ jobs:
           GCP_DEPLOY_PROJECT: ${{ vars.GCP_DEPLOY_PROJECT }}
           GCP_DEPLOY_REGION: ${{ vars.GCP_DEPLOY_REGION }}
         run: |
+          # Skaffoldのbuilderは使わず、builder別のCloud Build設定を直接実行する。
+          # これによりcustom SA、logging、VERIFIED provenance、images出力を
+          # Dockerfile/koのどちらでも同じ契約として明示的に制御できる。
           config="$(scripts/select-build-config.sh "apps/$APP")"
           image="${GCP_DEPLOY_REGION}-docker.pkg.dev/${GCP_DEPLOY_PROJECT}/cloud-deploy-example/${APP}"
           gcloud builds submit "apps/$APP" \
