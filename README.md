@@ -11,7 +11,6 @@ apps/
   hello-function/      Functions Framework を使う Cloud Run function
 scripts/
   changed-apps.sh      git diff からデプロイ対象を抽出
-  create-release.sh    staging release を作成
 terraform/             API、IAM、WIF、Cloud Deploy pipeline/target
 ```
 
