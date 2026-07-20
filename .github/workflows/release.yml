@@ -1,0 +1,74 @@
+name: Release changed apps to staging
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: staging-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.detect.outputs.apps }}
+      has_changes: ${{ steps.detect.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: detect
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          apps="$(scripts/changed-apps.sh "$BEFORE" "$AFTER")"
+          echo "apps=$apps" >> "$GITHUB_OUTPUT"
+          if [[ "$apps" == "[]" ]]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  release:
+    needs: changes
+    if: needs.changes.outputs.has_changes == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.changes.outputs.apps) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: ">= 541.0.0"
+      - name: Create release and deploy to staging
+        env:
+          GCP_DEPLOY_PROJECT: ${{ vars.GCP_DEPLOY_PROJECT }}
+          GCP_DEPLOY_REGION: ${{ vars.GCP_DEPLOY_REGION }}
+        run: |
+          release="git-${GITHUB_SHA::12}-${GITHUB_RUN_ATTEMPT}"
+          scripts/create-release.sh "${{ matrix.app }}" "$release"
+          mkdir -p release-metadata
+          jq -n \
+            --arg app "${{ matrix.app }}" \
+            --arg release "$release" \
+            '{app: $app, release: $release}' \
+            > "release-metadata/${{ matrix.app }}.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.app }}
+          path: release-metadata/*.json
+          retention-days: 30
+
