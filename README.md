@@ -12,6 +12,7 @@ apps/
   hello-ko-service/    koでビルドするGo Cloud Run service
 scripts/
   changed-apps.sh      git diff からデプロイ対象を抽出
+  select-build-config.sh  appのファイルからCloud Build設定を選択
 terraform/             API、IAM、WIF、Cloud Deploy pipeline/target
 ```
 
@@ -24,6 +25,9 @@ service ごとに独立した delivery pipeline を作ります。GitHub Actions
 でビルドし、`orange-sandbox`のArtifact Registryへ保存します。workflowは
 Dockerfileまたはgo.modからビルダーを選び、Artifact Registryで解決したdigestを
 Cloud Deploy releaseへ渡します。Cloud BuildのログはCloud Loggingだけに保存します。
+ビルダー判定は`scripts/select-build-config.sh`に集約し、未対応または複数候補が
+あるappはエラーにします。判定ロジックは`scripts/select-build-config.test.sh`で
+単体テストできます。
 
 ## 初期セットアップ
 

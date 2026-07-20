@@ -56,20 +56,13 @@ jobs:
         with:
           version: ">= 541.0.0"
       - name: Build container
+        id: build
         env:
           APP: ${{ matrix.app }}
           GCP_DEPLOY_PROJECT: ${{ vars.GCP_DEPLOY_PROJECT }}
           GCP_DEPLOY_REGION: ${{ vars.GCP_DEPLOY_REGION }}
         run: |
-          if [[ -f "apps/$APP/Dockerfile" ]]; then
-            config="cloudbuild/docker.yaml"
-          elif [[ -f "apps/$APP/go.mod" ]]; then
-            config="cloudbuild/ko.yaml"
-          else
-            echo "No supported builder found for $APP" >&2
-            exit 1
-          fi
-
+          config="$(scripts/select-build-config.sh "apps/$APP")"
           image="${GCP_DEPLOY_REGION}-docker.pkg.dev/${GCP_DEPLOY_PROJECT}/cloud-deploy-example/${APP}"
           gcloud builds submit "apps/$APP" \
             --config="$config" \
@@ -81,13 +74,14 @@ jobs:
           digest="$(gcloud artifacts docker images describe "$image:$GITHUB_SHA" \
             --project="$GCP_DEPLOY_PROJECT" \
             --format='value(image_summary.digest)')"
-          echo "DEPLOY_IMAGE=$image@$digest" >> "$GITHUB_ENV"
+          echo "deploy_image=$image@$digest" >> "$GITHUB_OUTPUT"
       - name: Create release and deploy to staging
         env:
           APP: ${{ matrix.app }}
           GCP_DEPLOY_PROJECT: ${{ vars.GCP_DEPLOY_PROJECT }}
           GCP_DEPLOY_REGION: ${{ vars.GCP_DEPLOY_REGION }}
           RELEASE: ${{ needs.changes.outputs.release }}
+          DEPLOY_IMAGE: ${{ steps.build.outputs.deploy_image }}
         run: |
           gcloud deploy releases create "$RELEASE" \
             --delivery-pipeline="$APP" \
