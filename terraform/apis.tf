@@ -23,6 +23,7 @@ resource "google_project_service" "artifact" {
   for_each = var.artifact_project_id == var.deploy_project_id ? toset([]) : toset([
     "artifactregistry.googleapis.com",
     "containeranalysis.googleapis.com",
+    "containerscanning.googleapis.com",
   ])
 
   project            = var.artifact_project_id

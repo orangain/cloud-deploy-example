@@ -25,6 +25,8 @@ service ごとに独立した delivery pipeline を作ります。GitHub Actions
 でビルドし、`artifact_project_id`のArtifact Registryへ保存します。workflowは
 Dockerfileまたはgo.modからビルダーを選び、Artifact Registryで解決したdigestを
 Cloud Deploy releaseへ渡します。Cloud BuildのログはCloud Loggingだけに保存します。
+Artifact RegistryのprojectではContainer Scanning APIを有効化し、pushされたimageを
+脆弱性スキャンの対象にします。
 ビルダー判定は`scripts/select-build-config.sh`に集約し、未対応または複数候補が
 あるappはエラーにします。判定ロジックは`scripts/select-build-config.test.sh`で
 単体テストできます。
