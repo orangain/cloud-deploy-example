@@ -39,7 +39,8 @@ buildの呼び出し元と実行主体には別のservice accountを使います
 
 ### GitHub Actions service account
 
-`github-cloud-deploy@orange-sandbox.iam.gserviceaccount.com`はbuildを起動する主体です。
+`github-cloud-deploy@<deploy_project_id>.iam.gserviceaccount.com`はbuildを起動する
+主体です。
 buildに関係する権限は次のとおりです。
 
 - projectの`roles/cloudbuild.builds.editor`: buildの作成と参照
@@ -53,8 +54,8 @@ buildに関係する権限は次のとおりです。
 
 ### Cloud Build builder service account
 
-`cloud-build-builder@orange-sandbox.iam.gserviceaccount.com`がbuilder YAMLのstepを
-実行します。利用できる権限は次の範囲に限定しています。
+`cloud-build-builder@<deploy_project_id>.iam.gserviceaccount.com`がbuilder YAMLの
+stepを実行します。利用できる権限は次の範囲に限定しています。
 
 - Artifact Registry repositoryの`roles/artifactregistry.writer`: imageのpush
 - Cloud Deploy bucketの`roles/storage.objectViewer`: build source archiveの取得

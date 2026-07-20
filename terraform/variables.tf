@@ -1,7 +1,6 @@
 variable "deploy_project_id" {
   description = "Cloud Deploy control project."
   type        = string
-  default     = "orange-sandbox"
 }
 
 variable "artifact_project_id" {
@@ -12,13 +11,11 @@ variable "artifact_project_id" {
 variable "staging_project_id" {
   description = "Staging Cloud Run project."
   type        = string
-  default     = "cloud-deploy-example-stg"
 }
 
 variable "production_project_id" {
   description = "Production Cloud Run project."
   type        = string
-  default     = "cloud-deploy-example-prod"
 }
 
 variable "region" {

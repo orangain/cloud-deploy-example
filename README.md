@@ -22,7 +22,7 @@ service ごとに独立した delivery pipeline を作ります。GitHub Actions
 されず、失敗や production 昇格も service 単位で扱えます。
 
 コンテナは`cloudbuild/docker.yaml`または`cloudbuild/ko.yaml`を使ってCloud Build
-でビルドし、`orange-sandbox`のArtifact Registryへ保存します。workflowは
+でビルドし、`artifact_project_id`のArtifact Registryへ保存します。workflowは
 Dockerfileまたはgo.modからビルダーを選び、Artifact Registryで解決したdigestを
 Cloud Deploy releaseへ渡します。Cloud BuildのログはCloud Loggingだけに保存します。
 ビルダー判定は`scripts/select-build-config.sh`に集約し、未対応または複数候補が
@@ -33,8 +33,8 @@ Cloud Deploy releaseへ渡します。Cloud BuildのログはCloud Loggingだけ
 
 前提:
 
-- `cloud-deploy-example-stg` と `cloud-deploy-example-prod` が作成済み
-- Cloud Deploy の control project として `orange-sandbox` を利用
+- `staging_project_id`と`production_project_id`に指定するprojectが作成済み
+- `deploy_project_id`にCloud Deployのcontrol projectを指定可能
 - Terraform を実行する主体が各 project の IAM/API を管理可能
 
 ```bash
@@ -75,7 +75,7 @@ GitHub SAのStorage権限はこのbucketだけに限定しています。
 
 Cloud Run serviceはHelm templateの
 `run.googleapis.com/invoker-iam-disabled: "true"`により未認証でアクセスできます。
-また、Binary Authorizationで`orange-sandbox`のCloud Buildによる検証済み
+また、Binary Authorizationで`deploy_project_id`のCloud Buildによる検証済み
 provenanceを持つimageだけをデプロイできます。
 Cloud DeployのstageがSkaffoldの`stg`/`prod` profileを選び、profileに対応する
 Helm valuesから次の環境変数が設定されます。

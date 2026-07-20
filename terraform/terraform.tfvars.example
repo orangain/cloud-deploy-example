@@ -1,4 +1,7 @@
-github_repository = "YOUR_GITHUB_OWNER/cloud-deploy-example"
-artifact_project_id = "orange-sandbox"
+deploy_project_id     = "orange-sandbox"
+artifact_project_id   = "orange-sandbox"
+staging_project_id    = "cloud-deploy-example-stg"
+production_project_id = "cloud-deploy-example-prod"
+github_repository     = "YOUR_GITHUB_OWNER/cloud-deploy-example"
 
 # production_approvers = ["group:release-managers@example.com"]

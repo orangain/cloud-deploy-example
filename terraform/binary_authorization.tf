@@ -2,7 +2,7 @@ resource "google_binary_authorization_policy" "runtime" {
   for_each = local.runtime_projects
 
   project     = each.value
-  description = "Allow only images verified by orange-sandbox Cloud Build."
+  description = "Allow only images verified by ${var.deploy_project_id} Cloud Build."
 
   default_admission_rule {
     evaluation_mode         = "REQUIRE_ATTESTATION"
