@@ -38,7 +38,8 @@ terraform apply
 ```
 
 必要に応じて `production_approvers` に production rollout を承認する group/user を
-指定してください。GitHub Actions のサービスアカウントには承認権限を付与しません。
+指定してください。指定したメンバーにはCloud Build Approverだけが付与されます。
+GitHub Actionsのサービスアカウントには承認権限を付与しません。
 
 apply 後の output を GitHub repository variables に設定します。
 
@@ -58,16 +59,16 @@ release source はTerraformで作成したCloud Deploy用bucketの`source/<app>`
 
 staging rolloutが成功すると、Cloud Deploy Automationが同じreleaseをproductionへ
 自動的にpromoteします。production targetは`require_approval = true`なので、
-実際のproductionデプロイは承認されるまで開始されません。stagingの動作確認後、
-Google Cloud consoleまたは次のコマンドでrolloutを承認します。
+実際のproductionデプロイは承認されるまで開始されません。
 
-```bash
-gcloud deploy rollouts approve ROLLOUT \
-  --delivery-pipeline=PIPELINE \
-  --release=RELEASE \
-  --region=asia-northeast1 \
-  --project=orange-sandbox
-```
+GitHub Actionsは変更service一覧をPub/Subへ発行し、承認必須の
+**approve-production-batch** Cloud Buildを1件作成します。stagingの動作確認後、
+Google Cloud consoleのCloud Build履歴からこのbuildを1回承認してください。
+専用のbatch approver SAが、同じreleaseに属するproduction rolloutを一括承認します。
+
+承認者が持つのは`roles/cloudbuild.builds.approver`、batch approver SAが持つのは
+`roles/clouddeploy.approver`です。Cloud Deployの監査ログにはbatch approver SAが、
+Cloud Buildの監査ログには実際にbuildを承認したユーザーが記録されます。
 
 ## service を追加する
 

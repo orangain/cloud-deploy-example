@@ -60,3 +60,27 @@ jobs:
         run: |
           release="git-${GITHUB_SHA::12}-${GITHUB_RUN_ATTEMPT}"
           scripts/create-release.sh "${{ matrix.app }}" "$release"
+
+  request-production-approval:
+    needs: [changes, release]
+    if: needs.changes.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+        with:
+          version: ">= 541.0.0"
+      - name: Request production batch approval
+        env:
+          GCP_DEPLOY_PROJECT: ${{ vars.GCP_DEPLOY_PROJECT }}
+          APPS_JSON: ${{ needs.changes.outputs.apps }}
+        run: |
+          release="git-${GITHUB_SHA::12}-${GITHUB_RUN_ATTEMPT}"
+          apps="$(jq -r 'join(",")' <<< "$APPS_JSON")"
+          gcloud pubsub topics publish cloud-deploy-production-approval-requests \
+            --project="$GCP_DEPLOY_PROJECT" \
+            --attribute="release=$release,apps=$apps"

@@ -45,7 +45,7 @@ variable "github_pool_id" {
 }
 
 variable "production_approvers" {
-  description = "IAM members allowed to approve production rollouts, for example group:release-managers@example.com."
+  description = "IAM members allowed to approve the production batch Cloud Build, for example group:release-managers@example.com."
   type        = set(string)
   default     = []
 }
