@@ -22,17 +22,6 @@ variable "region" {
   default     = "asia-northeast1"
 }
 
-variable "services" {
-  description = "Service names; each must match an apps/<name> directory."
-  type        = set(string)
-  default     = ["hello-service", "hello-function", "hello-ko-service"]
-
-  validation {
-    condition     = alltrue([for name in var.services : can(regex("^[a-z][a-z0-9-]{0,48}$", name))])
-    error_message = "Service names must be valid Cloud Run service names."
-  }
-}
-
 variable "github_repository" {
   description = "GitHub repository in owner/name form."
   type        = string

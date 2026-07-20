@@ -15,7 +15,7 @@ output "region" {
 }
 
 output "delivery_pipelines" {
-  value = sort(tolist(var.services))
+  value = sort(tolist(local.services))
 }
 
 output "artifact_registry_repository" {

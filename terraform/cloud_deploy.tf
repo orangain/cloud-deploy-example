@@ -25,7 +25,7 @@ resource "google_clouddeploy_target" "service" {
 }
 
 resource "google_clouddeploy_delivery_pipeline" "service" {
-  for_each = var.services
+  for_each = local.services
 
   project     = var.deploy_project_id
   location    = var.region
@@ -57,7 +57,7 @@ resource "google_clouddeploy_delivery_pipeline" "service" {
 }
 
 resource "google_clouddeploy_automation" "promote_to_prod" {
-  for_each = var.services
+  for_each = local.services
 
   project           = var.deploy_project_id
   location          = var.region

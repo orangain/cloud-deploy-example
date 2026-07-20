@@ -1,10 +1,3 @@
 github_repository = "YOUR_GITHUB_OWNER/cloud-deploy-example"
 
-# Add a matching apps/<name> directory before adding a service here.
-services = [
-  "hello-service",
-  "hello-function",
-  "hello-ko-service",
-]
-
 # production_approvers = ["group:release-managers@example.com"]

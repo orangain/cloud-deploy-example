@@ -1,4 +1,10 @@
 locals {
+  services = toset([
+    "hello-service",
+    "hello-function",
+    "hello-ko-service",
+  ])
+
   runtime_projects = {
     stg  = var.staging_project_id
     prod = var.production_project_id
@@ -23,7 +29,7 @@ locals {
   ])
 
   targets = merge([
-    for service in var.services : {
+    for service in local.services : {
       for environment, project_id in local.runtime_projects :
       "${service}-${environment}" => {
         service     = service
