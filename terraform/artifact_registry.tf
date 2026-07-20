@@ -59,31 +59,36 @@ resource "google_artifact_registry_repository_iam_member" "cloud_run_reader" {
 }
 
 resource "google_project_iam_member" "github_artifact_occurrences_reader" {
-  count = var.artifact_project_id == var.deploy_project_id ? 0 : 1
-
   project = var.artifact_project_id
   role    = "roles/containeranalysis.occurrences.viewer"
   member  = google_service_account.github_deployer.member
 
-  depends_on = [google_project_service.artifact]
+  depends_on = [
+    google_project_service.deploy,
+    google_project_service.artifact,
+  ]
 }
 
 resource "google_project_iam_member" "cloud_build_artifact_occurrences_editor" {
-  count = var.artifact_project_id == var.deploy_project_id ? 0 : 1
-
   project = var.artifact_project_id
   role    = "roles/containeranalysis.occurrences.editor"
   member  = "serviceAccount:service-${data.google_project.deploy.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
 
-  depends_on = [google_project_service.artifact]
+  depends_on = [
+    google_project_service.deploy,
+    google_project_service.artifact,
+  ]
 }
 
 resource "google_project_iam_member" "runtime_artifact_occurrences_reader" {
-  for_each = var.artifact_project_id == var.deploy_project_id ? {} : data.google_project.runtime
+  for_each = data.google_project.runtime
 
   project = var.artifact_project_id
   role    = "roles/containeranalysis.occurrences.viewer"
   member  = "serviceAccount:service-${each.value.number}@gcp-sa-binaryauthorization.iam.gserviceaccount.com"
 
-  depends_on = [google_project_service.artifact]
+  depends_on = [
+    google_project_service.deploy,
+    google_project_service.artifact,
+  ]
 }
