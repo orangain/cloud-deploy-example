@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: {{ .Values.serviceName }}
   annotations:
+    run.googleapis.com/binary-authorization: default
     run.googleapis.com/invoker-iam-disabled: "true"
 spec:
   template:
@@ -19,4 +20,3 @@ spec:
             - name: {{ $name }}
               value: {{ $value | quote }}
             {{- end }}
-

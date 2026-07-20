@@ -12,8 +12,10 @@ locals {
 
   deploy_apis = toset([
     "artifactregistry.googleapis.com",
+    "binaryauthorization.googleapis.com",
     "cloudbuild.googleapis.com",
     "clouddeploy.googleapis.com",
+    "containeranalysis.googleapis.com",
     "iam.googleapis.com",
     "iamcredentials.googleapis.com",
     "pubsub.googleapis.com",
@@ -23,6 +25,7 @@ locals {
 
   runtime_apis = toset([
     "artifactregistry.googleapis.com",
+    "binaryauthorization.googleapis.com",
     "cloudbuild.googleapis.com",
     "logging.googleapis.com",
     "run.googleapis.com",

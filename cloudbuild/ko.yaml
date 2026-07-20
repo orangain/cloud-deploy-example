@@ -3,10 +3,19 @@ steps:
     args:
       - build
       - --bare
+      - --local
       - --tags=${_TAG}
       - .
     env:
       - KO_DOCKER_REPO=${_IMAGE}
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_IMAGE}:${_TAG}
+
+images:
+  - ${_IMAGE}:${_TAG}
 
 options:
   logging: CLOUD_LOGGING_ONLY
+  requestedVerifyOption: VERIFIED

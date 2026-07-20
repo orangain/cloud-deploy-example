@@ -66,6 +66,8 @@ release source はTerraformで作成したCloud Deploy用bucketの`source/<app>`
 
 Cloud Run serviceはHelm templateの
 `run.googleapis.com/invoker-iam-disabled: "true"`により未認証でアクセスできます。
+また、Binary Authorizationで`orange-sandbox`のCloud Buildによる検証済み
+provenanceを持つimageだけをデプロイできます。
 Cloud DeployのstageがSkaffoldの`stg`/`prod` profileを選び、profileに対応する
 Helm valuesから次の環境変数が設定されます。
 
