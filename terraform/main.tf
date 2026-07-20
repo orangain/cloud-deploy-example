@@ -207,6 +207,12 @@ resource "google_project_iam_member" "batch_approver_clouddeploy" {
   member  = google_service_account.batch_approver.member
 }
 
+resource "google_project_iam_member" "batch_approver_clouddeploy_viewer" {
+  project = var.deploy_project_id
+  role    = "roles/clouddeploy.viewer"
+  member  = google_service_account.batch_approver.member
+}
+
 resource "google_project_iam_member" "batch_approver_logs" {
   project = var.deploy_project_id
   role    = "roles/logging.logWriter"
@@ -309,6 +315,7 @@ resource "google_cloudbuild_trigger" "production_batch_approval" {
 
   depends_on = [
     google_project_iam_member.batch_approver_clouddeploy,
+    google_project_iam_member.batch_approver_clouddeploy_viewer,
     google_project_iam_member.batch_approver_logs,
   ]
 }
