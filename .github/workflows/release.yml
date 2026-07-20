@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     outputs:
       apps: ${{ steps.detect.outputs.apps }}
       has_changes: ${{ steps.detect.outputs.has_changes }}
@@ -44,7 +44,7 @@ jobs:
       fail-fast: false
       matrix:
         app: ${{ fromJSON(needs.changes.outputs.apps) }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v6
       - id: auth
@@ -100,7 +100,8 @@ jobs:
   request-production-approval:
     needs: [changes, release]
     if: needs.changes.outputs.has_changes == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
+    timeout-minutes: 14
     steps:
       - uses: actions/checkout@v6
       - uses: google-github-actions/auth@v3
@@ -110,6 +111,64 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v3
         with:
           version: ">= 541.0.0"
+      - name: Wait for production rollouts
+        env:
+          GCP_DEPLOY_PROJECT: ${{ vars.GCP_DEPLOY_PROJECT }}
+          GCP_DEPLOY_REGION: ${{ vars.GCP_DEPLOY_REGION }}
+          APPS_JSON: ${{ needs.changes.outputs.apps }}
+          RELEASE: ${{ needs.changes.outputs.release }}
+        run: |
+          mapfile -t apps < <(jq -r '.[]' <<< "$APPS_JSON")
+          deadline=$((SECONDS + 720))
+
+          while (( SECONDS < deadline )); do
+            ready=0
+
+            for app in "${apps[@]}"; do
+              prod_state="$(gcloud deploy rollouts list \
+                --delivery-pipeline="$app" \
+                --release="$RELEASE" \
+                --project="$GCP_DEPLOY_PROJECT" \
+                --region="$GCP_DEPLOY_REGION" \
+                --filter="targetId=$app-prod" \
+                --format='value(state)')"
+
+              if [[ "$prod_state" == "PENDING_APPROVAL" ]]; then
+                ((++ready))
+                continue
+              fi
+
+              stg_state="$(gcloud deploy rollouts list \
+                --delivery-pipeline="$app" \
+                --release="$RELEASE" \
+                --project="$GCP_DEPLOY_PROJECT" \
+                --region="$GCP_DEPLOY_REGION" \
+                --filter="targetId=$app-stg" \
+                --format='value(state)')"
+
+              case "$stg_state" in
+                FAILED|CANCELLED|HALTED|APPROVAL_REJECTED)
+                  echo "::error::$app staging rollout ended in $stg_state"
+                  exit 1
+                  ;;
+              esac
+
+              echo "$app: staging=${stg_state:-NOT_CREATED}, production=${prod_state:-NOT_CREATED}"
+            done
+
+            if (( ready == ${#apps[@]} )); then
+              echo "All ${#apps[@]} production rollouts are pending approval."
+              break
+            fi
+
+            sleep 10
+          done
+
+          if (( ready != ${#apps[@]} )); then
+            echo "::error::Timed out waiting for all production rollouts to become PENDING_APPROVAL"
+            exit 1
+          fi
+
       - name: Request production batch approval
         env:
           GCP_DEPLOY_PROJECT: ${{ vars.GCP_DEPLOY_PROJECT }}

@@ -104,8 +104,10 @@ staging rolloutが成功すると、Cloud Deploy Automationが同じreleaseをpr
 自動的にpromoteします。production targetは`require_approval = true`なので、
 実際のproductionデプロイは承認されるまで開始されません。
 
-GitHub Actionsは変更service一覧をPub/Subへ発行し、承認必須の
-**approve-production-batch** Cloud Buildを1件作成します。stagingの動作確認後、
+GitHub Actionsは全serviceのproduction rolloutが`PENDING_APPROVAL`になるまで待機して
+から、変更service一覧をPub/Subへ発行し、承認必須の
+**approve-production-batch** Cloud Buildを1件作成します。そのため、このbuildが
+承認待ちになった時点で全serviceのstaging rolloutとverifyは成功済みです。
 Google Cloud consoleのCloud Build履歴からこのbuildを1回承認してください。
 専用のbatch approver SAが、同じreleaseに属するproduction rolloutを一括承認します。
 
