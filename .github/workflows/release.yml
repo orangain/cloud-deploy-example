@@ -19,7 +19,7 @@ jobs:
       apps: ${{ steps.detect.outputs.apps }}
       has_changes: ${{ steps.detect.outputs.has_changes }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - id: detect
@@ -44,13 +44,13 @@ jobs:
         app: ${{ fromJSON(needs.changes.outputs.apps) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - id: auth
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
-      - uses: google-github-actions/setup-gcloud@v2
+      - uses: google-github-actions/setup-gcloud@v3
         with:
           version: ">= 541.0.0"
       - name: Create release and deploy to staging
@@ -66,9 +66,8 @@ jobs:
             --arg release "$release" \
             '{app: $app, release: $release}' \
             > "release-metadata/${{ matrix.app }}.json"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-${{ matrix.app }}
           path: release-metadata/*.json
           retention-days: 30
-

@@ -24,9 +24,9 @@ locals {
     for service in var.services : {
       for environment, project_id in local.runtime_projects :
       "${service}-${environment}" => {
-        service      = service
-        environment  = environment
-        project_id   = project_id
+        service     = service
+        environment = environment
+        project_id  = project_id
       }
     }
   ]...)
@@ -88,12 +88,18 @@ resource "google_storage_bucket_iam_member" "execution_artifacts" {
   member = google_service_account.deploy_execution.member
 }
 
+resource "google_storage_bucket_iam_member" "github_source_staging" {
+  bucket = google_storage_bucket.cloud_deploy.name
+  role   = "roles/storage.admin"
+  member = google_service_account.github_deployer.member
+}
+
 resource "google_project_iam_member" "execution_runtime_roles" {
   for_each = {
     for pair in setproduct(keys(local.runtime_projects), [
       "roles/run.developer",
       "roles/iam.serviceAccountUser",
-    ]) : "${pair[0]}/${pair[1]}" => {
+      ]) : "${pair[0]}/${pair[1]}" => {
       project = local.runtime_projects[pair[0]]
       role    = pair[1]
     }

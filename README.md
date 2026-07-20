@@ -52,6 +52,8 @@ apply 後の output を GitHub repository variables に設定します。
 
 `main` への pull request merge（または直接 push）で
 `.github/workflows/release.yml` が staging release を作ります。
+release source はTerraformで作成したCloud Deploy用bucketの`source/<app>`へ
+アップロードされます。GitHub SAのStorage権限はこのbucketだけに限定しています。
 
 ## production へ昇格
 
