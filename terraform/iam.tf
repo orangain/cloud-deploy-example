@@ -65,6 +65,7 @@ resource "google_project_iam_member" "github_roles" {
     "roles/cloudbuild.builds.editor",
     "roles/clouddeploy.releaser",
     "roles/clouddeploy.viewer",
+    "roles/containeranalysis.occurrences.viewer",
     "roles/serviceusage.serviceUsageConsumer",
   ])
 

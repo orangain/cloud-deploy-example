@@ -49,6 +49,7 @@ buildに関係する権限は次のとおりです。
 - Cloud Deploy bucketの`roles/storage.admin`: build source archiveのuploadと
   Cloud Deploy release sourceの管理
 - Artifact Registry repositoryの`roles/artifactregistry.reader`: build後のdigest取得
+- projectの`roles/containeranalysis.occurrences.viewer`: provenanceを含むimage情報の参照
 
 ### Cloud Build builder service account
 
