@@ -83,4 +83,4 @@ jobs:
           apps="$(jq -r 'join(",")' <<< "$APPS_JSON")"
           gcloud pubsub topics publish cloud-deploy-production-approval-requests \
             --project="$GCP_DEPLOY_PROJECT" \
-            --attribute="release=$release,apps=$apps"
+            --attribute="^:^release=$release:apps=$apps"
